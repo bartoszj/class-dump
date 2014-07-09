@@ -14,6 +14,7 @@
 #import "CDFindMethodVisitor.h"
 #import "CDClassDumpVisitor.h"
 #import "CDMultiFileVisitor.h"
+#import "CDJSONDumpVisitor.h"
 #import "CDFile.h"
 #import "CDMachOFile.h"
 #import "CDFatFile.h"
@@ -33,6 +34,7 @@ void print_usage(void)
             "        -C <regex>     only display classes matching regular expression\n"
             "        -f <str>       find string in method name\n"
             "        -H             generate header files in current directory, or directory specified with -o\n"
+            "        -j             show classes in JSON format\n"
             "        -I             sort classes, categories, and protocols by inheritance (overrides -s)\n"
             "        -o <dir>       output directory used for -H\n"
             "        -r             recursively expand frameworks and fixed VM shared libraries\n"
@@ -62,6 +64,7 @@ int main(int argc, char *argv[])
 {
     @autoreleasepool {
         NSString *searchString;
+        BOOL shouldUseJSON = NO;
         BOOL shouldGenerateSeparateHeaders = NO;
         BOOL shouldListArches = NO;
         BOOL shouldPrintVersion = NO;
@@ -79,6 +82,7 @@ int main(int argc, char *argv[])
             { "match",                   required_argument, NULL, 'C' },
             { "find",                    required_argument, NULL, 'f' },
             { "generate-multiple-files", no_argument,       NULL, 'H' },
+            { "json",                    no_argument,       NULL, 'j' },
             { "sort-by-inheritance",     no_argument,       NULL, 'I' },
             { "output-dir",              required_argument, NULL, 'o' },
             { "recursive",               no_argument,       NULL, 'r' },
@@ -102,7 +106,7 @@ int main(int argc, char *argv[])
 
         CDClassDump *classDump = [[CDClassDump alloc] init];
 
-        while ( (ch = getopt_long(argc, argv, "aAC:f:HIo:rRsSt", longopts, NULL)) != -1) {
+        while ( (ch = getopt_long(argc, argv, "aAC:f:HjIo:rRsSt", longopts, NULL)) != -1) {
             switch (ch) {
                 case CD_OPT_ARCH: {
                     NSString *name = [NSString stringWithUTF8String:optarg];
@@ -202,6 +206,10 @@ int main(int argc, char *argv[])
                     
                 case 'H':
                     shouldGenerateSeparateHeaders = YES;
+                    break;
+                    
+                case 'j':
+                    shouldUseJSON = YES;
                     break;
                     
                 case 'I':
@@ -316,17 +324,27 @@ int main(int argc, char *argv[])
                         visitor.searchString = searchString;
                         [classDump recursivelyVisit:visitor];
                     } else if (shouldGenerateSeparateHeaders) {
-                        CDMultiFileVisitor *multiFileVisitor = [[CDMultiFileVisitor alloc] init];
-                        multiFileVisitor.classDump = classDump;
-                        classDump.typeController.delegate = multiFileVisitor;
-                        multiFileVisitor.outputPath = outputPath;
-                        [classDump recursivelyVisit:multiFileVisitor];
+                        if (shouldUseJSON) {
+                            
+                        } else {
+                            CDMultiFileVisitor *multiFileVisitor = [[CDMultiFileVisitor alloc] init];
+                            multiFileVisitor.classDump = classDump;
+                            classDump.typeController.delegate = multiFileVisitor;
+                            multiFileVisitor.outputPath = outputPath;
+                            [classDump recursivelyVisit:multiFileVisitor];
+                        }
                     } else {
-                        CDClassDumpVisitor *visitor = [[CDClassDumpVisitor alloc] init];
-                        visitor.classDump = classDump;
-                        if ([hiddenSections containsObject:@"structures"]) visitor.shouldShowStructureSection = NO;
-                        if ([hiddenSections containsObject:@"protocols"])  visitor.shouldShowProtocolSection  = NO;
-                        [classDump recursivelyVisit:visitor];
+                        if (shouldUseJSON) {
+                            CDJSONDumpVisitor *visitor = [[CDJSONDumpVisitor alloc] init];
+                            visitor.classDump = classDump;
+                            [classDump recursivelyVisit:visitor];
+                        } else {
+                            CDClassDumpVisitor *visitor = [[CDClassDumpVisitor alloc] init];
+                            visitor.classDump = classDump;
+                            if ([hiddenSections containsObject:@"structures"]) visitor.shouldShowStructureSection = NO;
+                            if ([hiddenSections containsObject:@"protocols"])  visitor.shouldShowProtocolSection  = NO;
+                            [classDump recursivelyVisit:visitor];
+                        }
                     }
                 }
             }
