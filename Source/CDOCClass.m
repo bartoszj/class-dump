@@ -106,4 +106,31 @@
     return @[self.superClassName];
 }
 
+- (NSDictionary *)dictionaryRepresentation
+{
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    dictionary[@"type"] = @"class";
+    if (self.name) {
+        dictionary[@"name"] = self.name;
+    }
+    if (self.superClassName) {
+        dictionary[@"superClass"] = self.superClassName;
+    }
+    // protocols
+    if ([self.protocolNames count] > 0) {
+        dictionary[@"protocols"] = [self.protocolNames copy];
+    }
+    
+    // ivars
+    if ([self.instanceVariables count] > 0) {
+        NSMutableArray *ivars = [NSMutableArray arrayWithCapacity:self.instanceVariables.count];
+        for (CDOCInstanceVariable *ivar in self.instanceVariables) {
+            [ivars addObject:[ivar dictionaryRepresentation]];
+        }
+        dictionary[@"ivars"] = [ivars copy];
+    }
+    
+    return [dictionary copy];
+}
+
 @end

@@ -8,9 +8,12 @@
 
 #import "CDJSONDumpVisitor.h"
 
+#import "CDOCClass.h"
+
 @interface CDJSONDumpVisitor ()
 
 @property (strong, nonatomic) NSMutableArray *classesArray;
+@property (strong, nonatomic) NSDictionary *currentClass;
 
 @end
 
@@ -33,6 +36,14 @@
 
 - (void)didEndVisiting;
 {
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.classesArray options:NSJSONWritingPrettyPrinted error:&error];
+    if (error) {
+        NSLog(@"%@", error);
+        exit(6);
+    }
+    
+    [(NSFileHandle *)[NSFileHandle fileHandleWithStandardOutput] writeData:jsonData];
 }
 
 // Called before visiting.
@@ -78,11 +89,13 @@
 
 - (void)willVisitClass:(CDOCClass *)aClass;
 {
+    NSDictionary *classDictionaryRepresentation = [aClass dictionaryRepresentation];
+    [self.classesArray addObject:classDictionaryRepresentation];
 }
 
-- (void)didVisitClass:(CDOCClass *)aClass;
-{
-}
+//- (void)didVisitClass:(CDOCClass *)aClass;
+//{
+//}
 
 - (void)willVisitIvarsOfClass:(CDOCClass *)aClass;
 {

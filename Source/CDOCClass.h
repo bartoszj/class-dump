@@ -16,4 +16,6 @@
 @property (strong) NSArray *instanceVariables;
 @property (assign) BOOL isExported;
 
+- (NSDictionary *)dictionaryRepresentation;
+
 @end

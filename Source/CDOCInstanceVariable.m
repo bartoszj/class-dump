@@ -9,6 +9,7 @@
 #import "CDTypeFormatter.h"
 #import "CDTypeParser.h"
 #import "CDTypeController.h"
+#import "CDTypeName.h"
 #import "CDType.h"
 
 @interface CDOCInstanceVariable ()
@@ -22,22 +23,34 @@
     NSString *_name;
     NSString *_typeString;
     NSUInteger _offset;
+    NSUInteger _alignment;
+    NSUInteger _size;
     
     BOOL _hasParsedType;
     CDType *_type;
     NSError *_parseError;
 }
 
-- (id)initWithName:(NSString *)name typeString:(NSString *)typeString offset:(NSUInteger)offset;
+- (id)initWithName:(NSString *)name typeString:(NSString *)typeString offset:(NSUInteger)offset alignment:(NSUInteger)alignment size:(NSUInteger)size
 {
     if ((self = [super init])) {
         _name       = name;
         _typeString = typeString;
         _offset     = offset;
+        _alignment  = alignment;
+        _size       = size;
         
         _hasParsedType = NO;
         _type          = nil;
         _parseError    = nil;
+    }
+    
+    return self;
+}
+
+- (id)initWithName:(NSString *)name typeString:(NSString *)typeString offset:(NSUInteger)offset;
+{
+    if ((self = [self initWithName:name typeString:typeString offset:offset alignment:0 size:0])) {
     }
 
     return self;
@@ -84,6 +97,23 @@
             [resultString appendFormat:@"\t// %ld = 0x%lx", self.offset, self.offset];
         }
     }
+}
+
+- (NSDictionary *)dictionaryRepresentation
+{
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    if (self.name) {
+        dictionary[@"name"] = self.name;
+    }
+//    CDType *type = [self type];
+//    if (type) {
+//        dictionary[@"type"] = type.typeName.name;
+//    }
+    dictionary[@"offset"] = @(self.offset);
+    dictionary[@"alignment"] = @(self.alignment);
+    dictionary[@"size"] = @(self.size);
+    
+    return [dictionary copy];
 }
 
 @end
