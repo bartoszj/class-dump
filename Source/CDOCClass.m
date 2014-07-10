@@ -106,7 +106,7 @@
     return @[self.superClassName];
 }
 
-- (NSDictionary *)dictionaryRepresentation
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     dictionary[@"type"] = @"class";
@@ -125,7 +125,7 @@
     if ([self.instanceVariables count] > 0) {
         NSMutableArray *ivars = [NSMutableArray arrayWithCapacity:self.instanceVariables.count];
         for (CDOCInstanceVariable *ivar in self.instanceVariables) {
-            [ivars addObject:[ivar dictionaryRepresentation]];
+            [ivars addObject:[ivar dictionaryRepresentationWithTypeController:typeController]];
         }
         dictionary[@"ivars"] = [ivars copy];
     }

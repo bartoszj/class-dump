@@ -99,16 +99,19 @@
     }
 }
 
-- (NSDictionary *)dictionaryRepresentation
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     if (self.name) {
         dictionary[@"name"] = self.name;
     }
-//    CDType *type = [self type];
-//    if (type) {
-//        dictionary[@"type"] = type.typeName.name;
-//    }
+    CDType *type = [self type];
+    if (type) {
+        [type phase0RecursivelyFixStructureNames:NO];
+        [type phase3MergeWithTypeController:typeController];
+        NSString *typeName = [type formattedString:nil formatter:typeController.ivarTypeFormatter level:0];
+        dictionary[@"type"] = typeName;
+    }
     dictionary[@"offset"] = @(self.offset);
     dictionary[@"alignment"] = @(self.alignment);
     dictionary[@"size"] = @(self.size);

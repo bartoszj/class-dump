@@ -23,6 +23,6 @@
 @property (readonly) NSError *parseError;
 
 - (void)appendToString:(NSMutableString *)resultString typeController:(CDTypeController *)typeController;
-- (NSDictionary *)dictionaryRepresentation;
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController;
 
 @end

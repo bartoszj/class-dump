@@ -8,6 +8,7 @@
 
 #import "CDJSONDumpVisitor.h"
 
+#import "CDClassDump.h"
 #import "CDOCClass.h"
 
 @interface CDJSONDumpVisitor ()
@@ -89,7 +90,7 @@
 
 - (void)willVisitClass:(CDOCClass *)aClass;
 {
-    NSDictionary *classDictionaryRepresentation = [aClass dictionaryRepresentation];
+    NSDictionary *classDictionaryRepresentation = [aClass dictionaryRepresentationWithTypeController:self.classDump.typeController];
     [self.classesArray addObject:classDictionaryRepresentation];
 }
 
