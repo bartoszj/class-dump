@@ -31,6 +31,27 @@
     return self;
 }
 
+- (void)createOutputPathIfNecessary;
+{
+    if (self.outputPath != nil) {
+        BOOL isDirectory;
+        
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        if ([fileManager fileExistsAtPath:self.outputPath isDirectory:&isDirectory] == NO) {
+            NSError *error = nil;
+            BOOL result = [fileManager createDirectoryAtPath:self.outputPath withIntermediateDirectories:YES attributes:nil error:&error];
+            if (result == NO) {
+                NSLog(@"Error: Couldn't create output directory: %@", self.outputPath);
+                NSLog(@"error: %@", error); // TODO: Test this
+                return;
+            }
+        } else if (isDirectory == NO) {
+            NSLog(@"Error: File exists at output path: %@", self.outputPath);
+            return;
+        }
+    }
+}
+
 #pragma mark -
 
 - (void)willBeginVisiting;
@@ -43,6 +64,8 @@
     NSString *archName = CDNameForCPUType(arch.cputype, arch.cpusubtype);
     NSString *executablePath = self.classDump.searchPathState.executablePath;
     NSString *frameworkName = CDImportNameForPath(executablePath);
+    
+    [self createOutputPathIfNecessary];
     
     if (self.outputPath) {
         if (self.useSeparateFiles) {
