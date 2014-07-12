@@ -102,6 +102,7 @@
 - (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    dictionary[@"type"] = @"ivar";
     if (self.name) {
         dictionary[@"name"] = self.name;
     }
@@ -110,7 +111,7 @@
         [type phase0RecursivelyFixStructureNames:NO];
         [type phase3MergeWithTypeController:typeController];
         NSString *typeName = [type formattedString:nil formatter:typeController.ivarTypeFormatter level:0];
-        dictionary[@"type"] = typeName;
+        dictionary[@"ivarType"] = typeName;
     }
     dictionary[@"offset"] = @(self.offset);
     dictionary[@"alignment"] = @(self.alignment);

@@ -96,6 +96,7 @@
 - (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    dictionary[@"type"] = @"method";
     if (self.name) {
         dictionary[@"name"] = self.name;
     }

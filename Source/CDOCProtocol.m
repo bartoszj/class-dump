@@ -346,6 +346,15 @@
         dictionary[@"protocols"] = [self.protocolNames copy];
     }
     
+    // properties
+    if ([self.properties count] > 0) {
+        NSMutableArray *properties = [NSMutableArray arrayWithCapacity:self.properties.count];
+        for (CDOCProperty *property in self.properties) {
+            [properties addObject:[property dictionaryRepresentationWithTypeController:typeController]];
+        }
+        dictionary[@"properties"] = [properties copy];
+    }
+    
     // class methods
     if ([self.classMethods count] > 0) {
         NSMutableArray *methods = [NSMutableArray arrayWithCapacity:self.classMethods.count];

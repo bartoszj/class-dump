@@ -13,8 +13,7 @@
 
 @interface CDJSONDumpVisitor ()
 
-@property (strong, nonatomic) NSMutableArray *classesArray;
-@property (strong, nonatomic) NSDictionary *currentClass;
+@property (strong, nonatomic) NSMutableArray *objecsArray;
 
 @end
 
@@ -24,7 +23,7 @@
 {
     self = [super init];
     if (self) {
-        self.classesArray = [NSMutableArray array];
+        self.objecsArray = [NSMutableArray array];
     }
     return self;
 }
@@ -38,7 +37,7 @@
 - (void)didEndVisiting;
 {
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.classesArray options:NSJSONWritingPrettyPrinted error:&error];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.objecsArray options:NSJSONWritingPrettyPrinted error:&error];
     if (error) {
         NSLog(@"%@", error);
         exit(6);
@@ -67,13 +66,15 @@
 //{
 //}
 
-- (void)willVisitOptionalMethods;
-{
-}
+// Not used.
+//- (void)willVisitOptionalMethods;
+//{
+//}
 
-- (void)didVisitOptionalMethods;
-{
-}
+// Not used.
+//- (void)didVisitOptionalMethods;
+//{
+//}
 
 // Called after visiting.
 - (void)didVisitObjectiveCProcessor:(CDObjectiveCProcessor *)processor;
@@ -82,29 +83,35 @@
 
 - (void)willVisitProtocol:(CDOCProtocol *)protocol;
 {
+    NSDictionary *protocolDictionaryRepresentation = [protocol dictionaryRepresentationWithTypeController:self.classDump.typeController];
+    [self.objecsArray addObject:protocolDictionaryRepresentation];
 }
 
-- (void)didVisitProtocol:(CDOCProtocol *)protocol;
-{
-}
+// Not used.
+//- (void)didVisitProtocol:(CDOCProtocol *)protocol;
+//{
+//}
 
 - (void)willVisitClass:(CDOCClass *)aClass;
 {
     NSDictionary *classDictionaryRepresentation = [aClass dictionaryRepresentationWithTypeController:self.classDump.typeController];
-    [self.classesArray addObject:classDictionaryRepresentation];
+    [self.objecsArray addObject:classDictionaryRepresentation];
 }
 
+// Not used.
 //- (void)didVisitClass:(CDOCClass *)aClass;
 //{
 //}
 
-- (void)willVisitIvarsOfClass:(CDOCClass *)aClass;
-{
-}
+// Not used.
+//- (void)willVisitIvarsOfClass:(CDOCClass *)aClass;
+//{
+//}
 
-- (void)didVisitIvarsOfClass:(CDOCClass *)aClass;
-{
-}
+// Not used.
+//- (void)didVisitIvarsOfClass:(CDOCClass *)aClass;
+//{
+//}
 
 // Not called.
 //- (void)willVisitPropertiesOfClass:(CDOCClass *)aClass;
@@ -134,17 +141,20 @@
 //{
 //}
 
-- (void)visitClassMethod:(CDOCMethod *)method;
-{
-}
+// Not used.
+//- (void)visitClassMethod:(CDOCMethod *)method;
+//{
+//}
 
-- (void)visitInstanceMethod:(CDOCMethod *)method propertyState:(CDVisitorPropertyState *)propertyState;
-{
-}
+// Not used.
+//- (void)visitInstanceMethod:(CDOCMethod *)method propertyState:(CDVisitorPropertyState *)propertyState;
+//{
+//}
 
-- (void)visitIvar:(CDOCInstanceVariable *)ivar;
-{
-}
+// Not used.
+//- (void)visitIvar:(CDOCInstanceVariable *)ivar;
+//{
+//}
 
 // Not called.
 //- (void)visitProperty:(CDOCProperty *)property;

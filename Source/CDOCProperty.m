@@ -8,6 +8,7 @@
 #import "CDTypeParser.h"
 #import "CDTypeLexer.h"
 #import "CDType.h"
+#import "CDTypeController.h"
 
 // http://developer.apple.com/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html
 
@@ -150,6 +151,31 @@ static BOOL debug = NO;
 
     _hasParsedAttributes = YES;
     // And then if parsedType is nil, we know we couldn't parse the type.
+}
+
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController
+{
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    dictionary[@"type"] = @"property";
+    if (self.name) {
+        dictionary[@"name"] = self.name;
+    }
+    if (self.getter) {
+        dictionary[@"getter"] = self.getter;
+    }
+    if (self.setter) {
+        dictionary[@"setter"] = self.setter;
+    }
+    
+    CDType *type = [self type];
+    if (type) {
+        [type phase0RecursivelyFixStructureNames:NO];
+        [type phase3MergeWithTypeController:typeController];
+        NSString *typeName = [type formattedString:nil formatter:typeController.propertyTypeFormatter level:0];
+        dictionary[@"propertyType"] = typeName;
+    }
+    
+    return [dictionary copy];
 }
 
 @end
