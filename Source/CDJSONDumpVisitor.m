@@ -1,4 +1,4 @@
-//
+
 //  CDJSONDumpVisitor.m
 //  class-dump
 //
@@ -12,6 +12,7 @@
 #import "CDOCClass.h"
 #import "CDOCCategory.h"
 #import "CDFile.h"
+#import "CDSearchPathState.h"
 
 @interface CDJSONDumpVisitor ()
 
@@ -38,59 +39,95 @@
 
 - (void)didEndVisiting;
 {
-    NSError *error;
-    
     CDArch arch = self.classDump.targetArch;
     NSString *archName = CDNameForCPUType(arch.cputype, arch.cpusubtype);
-
+    NSString *executablePath = self.classDump.searchPathState.executablePath;
+    NSString *frameworkName = CDImportNameForPath(executablePath);
     
     if (self.outputPath) {
         if (self.useSeparateFiles) {
-            for (NSDictionary *dict in self.objecsArray) {
-                NSDictionary *data = @{archName: dict};
-                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:&error];
-                if (error) {
-                    NSLog(@"%@", error);
-                    exit(6);
-                }
+            for (NSDictionary *objectDictionary in self.objecsArray) {
                 
                 NSString *filePath = nil;
-                NSString *type = dict[@"type"];
+                NSString *type = objectDictionary[@"type"];
                 if ([type isEqualToString:@"class"]) {
-                    NSString *className = dict[@"className"];
+                    NSString *className = objectDictionary[@"className"];
                     filePath = [NSString stringWithFormat:@"%@.json", className];
                 } else if ([type isEqualToString:@"category"]) {
-                    NSString *className = dict[@"className"];
-                    NSString *categoryName = dict[@"categoryName"];
+                    NSString *className = objectDictionary[@"className"];
+                    NSString *categoryName = objectDictionary[@"categoryName"];
                     filePath = [NSString stringWithFormat:@"%@-%@.json", className, categoryName];
                 } else if ([type isEqualToString:@"protocol"]) {
-                    NSString *protocolName = dict[@"protocolName"];
+                    NSString *protocolName = objectDictionary[@"protocolName"];
                     filePath = [NSString stringWithFormat:@"%@-Protocol.json", protocolName];
                 } else {
                     NSAssert(nil, @"Not supported type.");
                 }
-                
                 filePath = [self.outputPath stringByAppendingPathComponent:filePath];
+                
+                NSDictionary *dict;
+                NSError *error;
+                if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+                    @autoreleasepool {
+                        NSData *oldData = [NSData dataWithContentsOfFile:filePath];
+                        NSMutableDictionary *oldDict = [NSJSONSerialization JSONObjectWithData:oldData options:NSJSONReadingMutableContainers error:&error];
+                        if (error) {
+                            NSLog(@"%@", error);
+                            exit(6);
+                        }
+                        
+                        oldDict[archName] = objectDictionary;
+                        dict = [oldDict copy];
+                    }
+                } else {
+                    dict = @{archName: objectDictionary};
+                }
+                
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:&error];
+                if (error) {
+                    NSLog(@"%@", error);
+                    exit(7);
+                }
+                
                 [jsonData writeToFile:filePath atomically:YES];
             }
         } else {
-            NSDictionary *data = @{archName: self.objecsArray};
-            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:&error];
-            if (error) {
-                NSLog(@"%@", error);
-                exit(6);
+            NSString *filePath = [NSString stringWithFormat:@"%@.json", frameworkName];
+            filePath = [self.outputPath stringByAppendingPathComponent:filePath];
+            
+            NSDictionary *dict;
+            NSError *error;
+            if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+                @autoreleasepool {
+                    NSData *oldData = [NSData dataWithContentsOfFile:filePath];
+                    NSMutableDictionary *oldDict = [NSJSONSerialization JSONObjectWithData:oldData options:NSJSONReadingMutableContainers error:&error];
+                    if (error) {
+                        NSLog(@"%@", error);
+                        exit(6);
+                    }
+                    
+                    oldDict[archName] = self.objecsArray;
+                    dict = [oldDict copy];
+                }
+            } else {
+                dict = @{archName: self.objecsArray};
             }
             
-            NSString *filePath = [NSString stringWithFormat:@"%@.json", archName];
-            filePath = [self.outputPath stringByAppendingPathComponent:filePath];
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:&error];
+            if (error) {
+                NSLog(@"%@", error);
+                exit(7);
+            }
+            
             [jsonData writeToFile:filePath atomically:YES];
         }
     } else {
+        NSError *error;
         NSDictionary *data = @{archName: self.objecsArray};
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:&error];
         if (error) {
             NSLog(@"%@", error);
-            exit(6);
+            exit(7);
         }
         
         [(NSFileHandle *)[NSFileHandle fileHandleWithStandardOutput] writeData:jsonData];
