@@ -10,6 +10,7 @@
 
 #import "CDClassDump.h"
 #import "CDOCClass.h"
+#import "CDOCCategory.h"
 
 @interface CDJSONDumpVisitor ()
 
@@ -125,11 +126,14 @@
 
 - (void)willVisitCategory:(CDOCCategory *)category;
 {
+    NSDictionary *categoryDictionaryRepresentation = [category dictionaryRepresentationWithTypeController:self.classDump.typeController];
+    [self.objecsArray addObject:categoryDictionaryRepresentation];
 }
 
-- (void)didVisitCategory:(CDOCCategory *)category;
-{
-}
+// Not used.
+//- (void)didVisitCategory:(CDOCCategory *)category;
+//{
+//}
 
 // Not called.
 //- (void)willVisitPropertiesOfCategory:(CDOCCategory *)category;

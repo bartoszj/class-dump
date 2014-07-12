@@ -74,4 +74,20 @@
     return @[self.className];
 }
 
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController
+{
+    NSMutableDictionary *dictionary = [[super dictionaryRepresentationWithTypeController:typeController] mutableCopy];
+    dictionary[@"type"] = @"category";
+    [dictionary removeObjectForKey:@"protocolName"];
+    
+    if (self.name) {
+        dictionary[@"categoryName"] = self.name;
+    }
+    if (self.className) {
+        dictionary[@"className"] = self.className;
+    }
+    
+    return [dictionary copy];
+}
+
 @end

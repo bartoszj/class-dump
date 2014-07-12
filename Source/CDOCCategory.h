@@ -14,5 +14,6 @@
 
 - (NSString *)methodSearchContext;
 - (void)recursivelyVisit:(CDVisitor *)visitor;
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController;
 
 @end
