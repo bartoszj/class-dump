@@ -333,4 +333,56 @@
     }
 }
 
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController
+{
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    dictionary[@"type"] = @"protocol";
+    if (self.name) {
+        dictionary[@"protocolName"] = self.name;
+    }
+
+    // protocols
+    if ([self.protocolNames count] > 0) {
+        dictionary[@"protocols"] = [self.protocolNames copy];
+    }
+    
+    // class methods
+    if ([self.classMethods count] > 0) {
+        NSMutableArray *methods = [NSMutableArray arrayWithCapacity:self.classMethods.count];
+        for (CDOCMethod *method in self.classMethods) {
+            [methods addObject:[method dictionaryRepresentationWithTypeController:typeController]];
+        }
+        dictionary[@"classMethods"] = [methods copy];
+    }
+    
+    // instance methods
+    if ([self.instanceMethods count] > 0) {
+        NSMutableArray *methods = [NSMutableArray arrayWithCapacity:self.instanceMethods.count];
+        for (CDOCMethod *method in self.instanceMethods) {
+            [methods addObject:[method dictionaryRepresentationWithTypeController:typeController]];
+        }
+        dictionary[@"instanceMethods"] = [methods copy];
+    }
+    
+    // optional class methods
+    if ([self.optionalClassMethods count] > 0) {
+        NSMutableArray *methods = [NSMutableArray arrayWithCapacity:self.optionalClassMethods.count];
+        for (CDOCMethod *method in self.optionalClassMethods) {
+            [methods addObject:[method dictionaryRepresentationWithTypeController:typeController]];
+        }
+        dictionary[@"optionalClassMethods"] = [methods copy];
+    }
+    
+    // optional instance methods
+    if ([self.optionalInstanceMethods count] > 0) {
+        NSMutableArray *methods = [NSMutableArray arrayWithCapacity:self.optionalInstanceMethods.count];
+        for (CDOCMethod *method in self.optionalInstanceMethods) {
+            [methods addObject:[method dictionaryRepresentationWithTypeController:typeController]];
+        }
+        dictionary[@"optionalInstanceMethods"] = [methods copy];
+    }
+    
+    return [dictionary copy];
+}
+
 @end

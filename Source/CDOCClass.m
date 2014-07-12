@@ -108,17 +108,15 @@
 
 - (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController
 {
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    NSMutableDictionary *dictionary = [[super dictionaryRepresentationWithTypeController:typeController] mutableCopy];
     dictionary[@"type"] = @"class";
+    [dictionary removeObjectForKey:@"protocolName"];
+    
     if (self.name) {
-        dictionary[@"name"] = self.name;
+        dictionary[@"className"] = self.name;
     }
     if (self.superClassName) {
-        dictionary[@"superClass"] = self.superClassName;
-    }
-    // protocols
-    if ([self.protocolNames count] > 0) {
-        dictionary[@"protocols"] = [self.protocolNames copy];
+        dictionary[@"superClassName"] = self.superClassName;
     }
     
     // ivars

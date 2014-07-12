@@ -93,6 +93,21 @@
         [resultString appendFormat:@"    // Error parsing type: %@, name: %@", self.typeString, self.name];
 }
 
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController
+{
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    if (self.name) {
+        dictionary[@"name"] = self.name;
+    }
+    if (self.typeString) {
+        NSString *declaration = [typeController.methodTypeFormatter formatMethodName:self.name typeString:self.typeString];
+        dictionary[@"declaration"] = declaration;
+    }
+    dictionary[@"address"] = @(self.address);
+    
+    return [dictionary copy];
+}
+
 #pragma mark - Sorting
 
 - (NSComparisonResult)ascendingCompareByName:(CDOCMethod *)other;

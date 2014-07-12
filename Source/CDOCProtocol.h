@@ -49,4 +49,6 @@
 - (void)mergeMethodsFromProtocol:(CDOCProtocol *)other;
 - (void)mergePropertiesFromProtocol:(CDOCProtocol *)other;
 
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController;
+
 @end

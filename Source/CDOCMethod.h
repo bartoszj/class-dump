@@ -17,6 +17,7 @@
 - (NSArray *)parsedMethodTypes;
 
 - (void)appendToString:(NSMutableString *)resultString typeController:(CDTypeController *)typeController;
+- (NSDictionary *)dictionaryRepresentationWithTypeController:(CDTypeController *)typeController;
 
 - (NSComparisonResult)ascendingCompareByName:(CDOCMethod *)other;
 
