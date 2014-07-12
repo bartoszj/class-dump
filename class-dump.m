@@ -325,7 +325,11 @@ int main(int argc, char *argv[])
                         [classDump recursivelyVisit:visitor];
                     } else if (shouldGenerateSeparateHeaders) {
                         if (shouldUseJSON) {
-                            
+                            CDJSONDumpVisitor *visitor = [[CDJSONDumpVisitor alloc] init];
+                            visitor.classDump = classDump;
+                            visitor.outputPath = outputPath;
+                            visitor.useSeparateFiles = YES;
+                            [classDump recursivelyVisit:visitor];
                         } else {
                             CDMultiFileVisitor *multiFileVisitor = [[CDMultiFileVisitor alloc] init];
                             multiFileVisitor.classDump = classDump;
@@ -337,6 +341,7 @@ int main(int argc, char *argv[])
                         if (shouldUseJSON) {
                             CDJSONDumpVisitor *visitor = [[CDJSONDumpVisitor alloc] init];
                             visitor.classDump = classDump;
+                            visitor.outputPath = outputPath;
                             [classDump recursivelyVisit:visitor];
                         } else {
                             CDClassDumpVisitor *visitor = [[CDClassDumpVisitor alloc] init];

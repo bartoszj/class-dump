@@ -11,6 +11,7 @@
 #import "CDClassDump.h"
 #import "CDOCClass.h"
 #import "CDOCCategory.h"
+#import "CDFile.h"
 
 @interface CDJSONDumpVisitor ()
 
@@ -38,13 +39,24 @@
 - (void)didEndVisiting;
 {
     NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.objecsArray options:NSJSONWritingPrettyPrinted error:&error];
+    
+    CDArch arch = self.classDump.targetArch;
+    NSString *archName = CDNameForCPUType(arch.cputype, arch.cpusubtype);
+    NSDictionary *data = @{archName: self.objecsArray};
+    
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:&error];
     if (error) {
         NSLog(@"%@", error);
         exit(6);
     }
     
-    [(NSFileHandle *)[NSFileHandle fileHandleWithStandardOutput] writeData:jsonData];
+    if (self.outputPath) {
+        NSString *filePath = [NSString stringWithFormat:@"%@.json", archName];
+        filePath = [self.outputPath stringByAppendingPathComponent:filePath];
+        [jsonData writeToFile:filePath atomically:YES];
+    } else {
+        [(NSFileHandle *)[NSFileHandle fileHandleWithStandardOutput] writeData:jsonData];
+    }
 }
 
 // Called before visiting.
@@ -84,8 +96,10 @@
 
 - (void)willVisitProtocol:(CDOCProtocol *)protocol;
 {
-    NSDictionary *protocolDictionaryRepresentation = [protocol dictionaryRepresentationWithTypeController:self.classDump.typeController];
-    [self.objecsArray addObject:protocolDictionaryRepresentation];
+    @autoreleasepool {
+        NSDictionary *protocolDictionaryRepresentation = [protocol dictionaryRepresentationWithTypeController:self.classDump.typeController];
+        [self.objecsArray addObject:protocolDictionaryRepresentation];
+    }
 }
 
 // Not used.
@@ -95,8 +109,10 @@
 
 - (void)willVisitClass:(CDOCClass *)aClass;
 {
-    NSDictionary *classDictionaryRepresentation = [aClass dictionaryRepresentationWithTypeController:self.classDump.typeController];
-    [self.objecsArray addObject:classDictionaryRepresentation];
+    @autoreleasepool {
+        NSDictionary *classDictionaryRepresentation = [aClass dictionaryRepresentationWithTypeController:self.classDump.typeController];
+        [self.objecsArray addObject:classDictionaryRepresentation];
+    }
 }
 
 // Not used.
@@ -126,8 +142,10 @@
 
 - (void)willVisitCategory:(CDOCCategory *)category;
 {
-    NSDictionary *categoryDictionaryRepresentation = [category dictionaryRepresentationWithTypeController:self.classDump.typeController];
-    [self.objecsArray addObject:categoryDictionaryRepresentation];
+    @autoreleasepool {
+        NSDictionary *categoryDictionaryRepresentation = [category dictionaryRepresentationWithTypeController:self.classDump.typeController];
+        [self.objecsArray addObject:categoryDictionaryRepresentation];
+    }
 }
 
 // Not used.
@@ -165,8 +183,9 @@
 //{
 //}
 
-- (void)visitRemainingProperties:(CDVisitorPropertyState *)propertyState;
-{
-}
+// Not used.
+//- (void)visitRemainingProperties:(CDVisitorPropertyState *)propertyState;
+//{
+//}
 
 @end

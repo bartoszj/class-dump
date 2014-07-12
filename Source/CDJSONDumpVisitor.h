@@ -10,4 +10,7 @@
 
 @interface CDJSONDumpVisitor : CDVisitor
 
+@property (assign, nonatomic) BOOL useSeparateFiles;
+@property (strong, nonatomic) NSString *outputPath;
+
 @end
