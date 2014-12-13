@@ -55,6 +55,16 @@
     return self;
 }
 
+- (BOOL)isEqual:(id)object;
+{
+    return [object isKindOfClass:[CDOCProtocol class]] && [self.sortableName isEqualToString:((CDOCProtocol *)object).sortableName];
+}
+
+- (NSUInteger)hash;
+{
+    return [self.sortableName hash];
+}
+
 #pragma mark - Debugging
 
 - (NSString *)description;
