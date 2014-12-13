@@ -102,7 +102,9 @@
     }
     if (self.typeString) {
         NSString *declaration = [typeController.methodTypeFormatter formatMethodName:self.name typeString:self.typeString];
-        dictionary[@"declaration"] = declaration;
+        if (declaration) {
+            dictionary[@"declaration"] = declaration;
+        }
     }
     dictionary[@"address"] = @(self.address);
     
