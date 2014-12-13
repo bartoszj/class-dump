@@ -28,25 +28,26 @@ void print_usage(void)
             "Usage: class-dump [options] <mach-o-file>\n"
             "\n"
             "  where options are:\n"
-            "        -a             show instance variable offsets\n"
-            "        -A             show implementation addresses\n"
-            "        --arch <arch>  choose a specific architecture from a universal binary (ppc, ppc64, i386, x86_64, armv6, armv7, armv7s, arm64)\n"
-            "        -C <regex>     only display classes matching regular expression\n"
-            "        -f <str>       find string in method name\n"
-            "        -H             generate header files in current directory, or directory specified with -o\n"
-            "        -j             show classes in JSON format\n"
-            "        -I             sort classes, categories, and protocols by inheritance (overrides -s)\n"
-            "        -o <dir>       output directory used for -H\n"
-            "        -r             recursively expand frameworks and fixed VM shared libraries\n"
-            "        -s             sort classes and categories by name\n"
-            "        -S             sort methods by name\n"
-            "        -t             suppress header in output, for testing\n"
-            "        --list-arches  list the arches in the file, then exit\n"
-            "        --sdk-ios      specify iOS SDK version (will look for /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk\n"
-            "                       or /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk)\n"
-            "        --sdk-mac      specify Mac OS X version (will look for /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX<version>.sdk\n"
-            "                       or /Developer/SDKs/MacOSX<version>.sdk)\n"
-            "        --sdk-root     specify the full SDK root path (or use --sdk-ios/--sdk-mac for a shortcut)\n"
+            "        -a                       show instance variable offsets\n"
+            "        -A                       show implementation addresses\n"
+            "        --arch <arch>            choose a specific architecture from a universal binary (ppc, ppc64, i386, x86_64, armv6, armv7, armv7s, arm64)\n"
+            "        -C <regex>               only display classes matching regular expression\n"
+            "        -f <str>                 find string in method name\n"
+            "        -H                       generate header files in current directory, or directory specified with -o\n"
+            "        -j                       show classes in JSON format\n"
+            "        -I                       sort classes, categories, and protocols by inheritance (overrides -s)\n"
+            "        -o <dir>                 output directory used for -H\n"
+            "        -r                       recursively expand frameworks and fixed VM shared libraries\n"
+            "        -s                       sort classes and categories by name\n"
+            "        -S                       sort methods by name\n"
+            "        -t                       suppress header in output, for testing\n"
+            "        --list-arches            list the arches in the file, then exit\n"
+            "        --sdk-ios <version>      specify iOS SDK version (will look for /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk\n"
+            "                                 or /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS<version>.sdk)\n"
+            "        --sdk-ios-sim <version>  specify iOS SDK version (will look for /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator<version>.sdk\n"
+            "        --sdk-mac <version>      specify Mac OS X version (will look for /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX<version>.sdk\n"
+            "                                 or /Developer/SDKs/MacOSX<version>.sdk)\n"
+            "        --sdk-root               specify the full SDK root path (or use --sdk-ios/--sdk-ios-sim/--sdk-mac for a shortcut)\n"
             ,
             CLASS_DUMP_VERSION
        );
@@ -56,9 +57,10 @@ void print_usage(void)
 #define CD_OPT_LIST_ARCHES 2
 #define CD_OPT_VERSION     3
 #define CD_OPT_SDK_IOS     4
-#define CD_OPT_SDK_MAC     5
-#define CD_OPT_SDK_ROOT    6
-#define CD_OPT_HIDE        7
+#define CD_OPT_SDK_IOS_SIM 5
+#define CD_OPT_SDK_MAC     6
+#define CD_OPT_SDK_ROOT    7
+#define CD_OPT_HIDE        8
 
 int main(int argc, char *argv[])
 {
@@ -93,6 +95,7 @@ int main(int argc, char *argv[])
             { "suppress-header",         no_argument,       NULL, 't' },
             { "version",                 no_argument,       NULL, CD_OPT_VERSION },
             { "sdk-ios",                 required_argument, NULL, CD_OPT_SDK_IOS },
+            { "sdk-ios-sim",             required_argument, NULL, CD_OPT_SDK_IOS_SIM },
             { "sdk-mac",                 required_argument, NULL, CD_OPT_SDK_MAC },
             { "sdk-root",                required_argument, NULL, CD_OPT_SDK_ROOT },
             { "hide",                    required_argument, NULL, CD_OPT_HIDE },
@@ -136,6 +139,18 @@ int main(int argc, char *argv[])
                         str = [NSString stringWithFormat:@"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%@.sdk", root];
                     } else if ([[NSFileManager defaultManager] fileExistsAtPath: @"/Developer"]) {
                         str = [NSString stringWithFormat:@"/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS%@.sdk", root];
+                    }
+                    classDump.sdkRoot = str;
+                    
+                    break;
+                }
+                    
+                case CD_OPT_SDK_IOS_SIM: {
+                    NSString *root = [NSString stringWithUTF8String:optarg];
+                    //NSLog(@"root: %@", root);
+                    NSString *str;
+                    if ([[NSFileManager defaultManager] fileExistsAtPath: @"/Applications/Xcode.app"]) {
+                        str = [NSString stringWithFormat:@"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%@.sdk", root];
                     }
                     classDump.sdkRoot = str;
                     
